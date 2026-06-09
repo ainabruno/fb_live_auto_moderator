@@ -39,6 +39,10 @@ export const moderationSessions = mysqlTable(
     liveVideoId: varchar("liveVideoId", { length: 255 }),
     liveContext: text("liveContext"), // Live topic/transcript
     isActive: boolean("isActive").default(true).notNull(),
+    isListening: boolean("isListening").default(false).notNull(), // Is polling for comments
+    lastCommentFetchTime: timestamp("lastCommentFetchTime"), // Last time we fetched comments
+    totalCommentsReceived: int("totalCommentsReceived").default(0).notNull(),
+    totalResponsesSent: int("totalResponsesSent").default(0).notNull(),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
     updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   },

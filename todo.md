@@ -213,3 +213,51 @@
 - [x] Test language settings respect
 - [x] Test auto-approval logic
 - [x] All 97 tests passing
+
+## Facebook Live Integration & Real-Time Features
+
+### Facebook API Integration
+- [x] Store Facebook Page ID and Access Token securely in database
+- [x] Validate Facebook access tokens
+- [x] Implement Facebook Graph API client
+- [x] Get list of active live videos for a page
+- [x] Fetch live comments from Facebook Graph API
+- [x] Handle Facebook API rate limiting and errors
+- [ ] Implement token refresh mechanism
+
+### Real-Time Comment Listening
+- [x] Implement polling mechanism to fetch new comments (every 2-5 seconds)
+- [x] Store fetched comments in database with status tracking
+- [x] Detect new comments vs already processed ones
+- [ ] Handle comment deletions/edits from Facebook
+- [ ] Implement WebSocket for real-time updates to frontend
+- [ ] Add comment feed refresh in Session page
+- [ ] Display live comment count and activity indicator
+
+### Automatic Response Sending
+- [x] Implement Facebook API endpoint to post comments/replies
+- [x] Queue system for responses to be sent
+- [x] Send generated responses to Facebook Live
+- [x] Track response sending status (pending, sent, failed)
+- [ ] Implement retry logic for failed sends
+- [x] Log all sent responses with timestamps
+- [x] Handle Facebook API errors gracefully
+
+### Session Management Enhancements
+- [ ] Start background job when session begins
+- [ ] Stop background job when session ends
+- [ ] Pause/resume comment listening
+- [ ] Session status indicators (listening, paused, stopped)
+- [ ] Live statistics (comments received, responses sent, etc.)
+
+### Error Handling & Monitoring
+- [x] Handle network disconnections gracefully
+- [x] Implement error logging and notifications
+- [ ] Display error messages to user
+- [ ] Automatic reconnection logic
+- [ ] Session health checks
+
+### Testing
+- [x] Unit tests for FacebookClient
+- [x] Unit tests for CommentListener (20 tests)
+- [x] All 117 tests passing

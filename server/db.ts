@@ -250,6 +250,17 @@ export async function createGeneratedResponse(
   return result;
 }
 
+export async function getCommentByFacebookId(facebookCommentId: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(comments)
+    .where(eq(comments.facebookCommentId, facebookCommentId))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
 export async function getCommentResponse(commentId: number) {
   const db = await getDb();
   if (!db) return undefined;
@@ -257,6 +268,17 @@ export async function getCommentResponse(commentId: number) {
     .select()
     .from(generatedResponses)
     .where(eq(generatedResponses.commentId, commentId))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getGeneratedResponse(responseId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(generatedResponses)
+    .where(eq(generatedResponses.id, responseId))
     .limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
