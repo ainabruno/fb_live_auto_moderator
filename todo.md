@@ -182,3 +182,34 @@
 - Language detection and response generation must be automatic
 - Premium, polished UI throughout
 - Real-time updates where possible
+
+## Test Moderation Feature
+
+### Backend
+- [x] Create testModeration tRPC procedure
+- [x] Input: sample comment text, optional session context
+- [x] Output: classification, priority score, spam detection, language, response preview
+- [x] Use current user settings for testing
+
+### Frontend
+- [x] Add "Test Moderation" tab to Settings page
+- [x] Input field for sample comment
+- [x] Optional: select language or let AI detect
+- [x] Display results in card format:
+  - Classification badge (question/gratitude/spam/off-topic)
+  - Priority score visualization
+  - Spam detection result
+  - Detected language
+  - Generated response preview
+  - Confidence scores
+- [x] Loading state during analysis
+- [x] Clear/reset button
+
+### Testing
+- [x] Unit tests for testModeration procedure (29 tests)
+- [x] Integration tests for testModeration (12 tests)
+- [x] Test with various comment types (question, gratitude, spam, off-topic)
+- [x] Test with different language inputs (English, French, Malagasy)
+- [x] Test language settings respect
+- [x] Test auto-approval logic
+- [x] All 97 tests passing

@@ -1,4 +1,5 @@
 import { COOKIE_NAME } from "@shared/const";
+import { eq, desc } from "drizzle-orm";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
@@ -296,6 +297,99 @@ export const appRouter = router({
           enableFrench: input.enableFrench,
           enableEnglish: input.enableEnglish,
         });
+      }),
+
+    // Test Moderation
+    testModeration: protectedProcedure
+      .input(
+        z.object({
+          sampleComment: z.string().min(1),
+          liveContext: z.string().optional(),
+        })
+      )
+      .query(async ({ ctx, input }) => {
+        // Get user's current settings
+        const settings = await db.getModerationSettings(ctx.user!.id);
+        const blockedKeywords = settings?.blockedKeywords
+          ? JSON.parse(settings.blockedKeywords)
+          : [];
+
+        // Detect language
+        const languageResult = await detectLanguage(input.sampleComment);
+        const detectedLanguage = languageResult.language || "en";
+
+        // Check if language is enabled
+        const languageEnabled =
+          (detectedLanguage === "mg" && settings?.enableMalagasy) ||
+          (detectedLanguage === "fr" && settings?.enableFrench) ||
+          (detectedLanguage === "en" && settings?.enableEnglish) ||
+          !settings;
+
+        // Check for spam
+        const isSpam =
+          settings?.spamFilterEnabled &&
+          checkSpamKeywords(input.sampleComment, blockedKeywords);
+
+        // Classify comment
+        const classification = await classifyComment(
+          input.sampleComment,
+          input.liveContext || ""
+        );
+
+        // Priority is already in classification result
+        const priority = classification.priority;
+
+        // Generate response (if not spam and language is enabled)
+        let response = null;
+        let confidence = 0;
+        if (!isSpam && languageEnabled) {
+          const responseResult = await generateResponse(
+            input.sampleComment,
+            input.liveContext || "",
+            detectedLanguage
+          );
+          response = responseResult.response;
+          confidence = responseResult.confidence || 0;
+        }
+
+        // Determine if would be auto-approved
+        const wouldAutoApprove =
+          settings?.autoApproveResponses &&
+          !isSpam &&
+          languageEnabled &&
+          confidence >= 0.7 &&
+          response !== null;
+
+        return {
+          sampleComment: input.sampleComment,
+          detectedLanguage,
+          languageEnabled,
+          classification: {
+            type: classification.classification,
+            confidence: classification.confidence || 0,
+          },
+          isSpam,
+          priority: {
+            score: priority,
+            level:
+              priority >= 80
+                ? "critical"
+                : priority >= 60
+                  ? "high"
+                  : priority >= 40
+                    ? "medium"
+                    : "low",
+          },
+          response,
+          responseConfidence: confidence,
+          wouldAutoApprove,
+          settings: {
+            autoApproveEnabled: settings?.autoApproveResponses || false,
+            spamFilterEnabled: settings?.spamFilterEnabled || false,
+            responseDelaySeconds: settings?.responseDelaySeconds || 0,
+            maxRepliesPerMinute: settings?.maxRepliesPerMinute || 10,
+          },
+        };
       }),
 
     // Response History

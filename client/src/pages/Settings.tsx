@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { TestModerationTab } from "@/components/TestModerationTab";
 import {
   Loader2,
   ArrowLeft,
@@ -18,6 +19,7 @@ import {
   Shield,
   Zap,
   Globe,
+  Beaker,
 } from "lucide-react";
 
 export default function Settings() {
@@ -150,7 +152,7 @@ export default function Settings() {
           </div>
         ) : (
           <Tabs defaultValue="approval" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-8">
+            <TabsList className="grid w-full grid-cols-5 mb-8">
               <TabsTrigger value="approval" className="gap-2">
                 <Zap className="w-4 h-4" />
                 <span className="hidden sm:inline">Approval</span>
@@ -162,6 +164,10 @@ export default function Settings() {
               <TabsTrigger value="languages" className="gap-2">
                 <Globe className="w-4 h-4" />
                 <span className="hidden sm:inline">Languages</span>
+              </TabsTrigger>
+              <TabsTrigger value="test" className="gap-2">
+                <Beaker className="w-4 h-4" />
+                <span className="hidden sm:inline">Test</span>
               </TabsTrigger>
               <TabsTrigger value="advanced">Advanced</TabsTrigger>
             </TabsList>
@@ -472,6 +478,11 @@ export default function Settings() {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            {/* Test Moderation Tab */}
+            <TabsContent value="test">
+              <TestModerationTab />
             </TabsContent>
 
             {/* Advanced Tab */}
