@@ -63,6 +63,7 @@ export default function LiveDashboard() {
     );
 
   const [isPaused, setIsPaused] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
   const commentsFeedRef = useRef<HTMLDivElement>(null);
   const responsesFeedRef = useRef<HTMLDivElement>(null);
 
@@ -112,6 +113,12 @@ export default function LiveDashboard() {
   const approvalRate =
     totalComments > 0 ? ((autoApprovedCount / totalComments) * 100).toFixed(1) : "0";
 
+  // Filter comments based on selected filter
+  const filteredComments = (comments as any[]).filter((c) => {
+    if (!selectedFilter) return true;
+    return c.classification === selectedFilter;
+  });
+
   // Get language distribution
   const languageCount = {
     en: (comments as any[]).filter((c) => c.detectedLanguage === "en").length,
@@ -126,6 +133,15 @@ export default function LiveDashboard() {
     spam: (comments as any[]).filter((c) => c.classification === "spam").length,
     off_topic: (comments as any[]).filter((c) => c.classification === "off_topic").length,
   };
+
+  // Filter buttons configuration
+  const filterButtons = [
+    { id: null, label: "All", count: totalComments },
+    { id: "question", label: "Questions", count: classificationCount.question },
+    { id: "gratitude", label: "Gratitude", count: classificationCount.gratitude },
+    { id: "spam", label: "Spam", count: classificationCount.spam },
+    { id: "off_topic", label: "Off-Topic", count: classificationCount.off_topic },
+  ];
 
   const getClassificationColor = (classification: string) => {
     switch (classification) {
@@ -302,8 +318,34 @@ export default function LiveDashboard() {
                 Incoming Comments
               </h2>
               <p className="text-xs text-slate-500 mt-1">
-                {commentsLoading ? "Loading..." : `${totalComments} total`}
+                {commentsLoading
+                  ? "Loading..."
+                  : selectedFilter
+                  ? `${filteredComments.length} ${selectedFilter} comments`
+                  : `${totalComments} total comments`}
               </p>
+            </div>
+
+            {/* Filter Buttons */}
+            <div className="px-4 py-3 border-b border-slate-200 bg-slate-50">
+              <div className="flex flex-wrap gap-2">
+                {filterButtons.map((filter) => (
+                  <button
+                    key={filter.id || "all"}
+                    onClick={() => setSelectedFilter(filter.id)}
+                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                      selectedFilter === filter.id
+                        ? "bg-blue-600 text-white shadow-md"
+                        : "bg-white text-slate-700 border border-slate-300 hover:border-blue-400 hover:bg-blue-50"
+                    }`}
+                  >
+                    <span>{filter.label}</span>
+                    <span className="ml-2 inline-block text-xs font-semibold opacity-75">
+                      ({filter.count})
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div
@@ -314,12 +356,16 @@ export default function LiveDashboard() {
                 <div className="flex items-center justify-center h-full">
                   <Spinner />
                 </div>
-              ) : comments.length === 0 ? (
+              ) : filteredComments.length === 0 ? (
                 <div className="flex items-center justify-center h-full text-slate-500">
-                  <p>No comments yet. Waiting for live activity...</p>
+                  <p>
+                    {selectedFilter
+                      ? `No ${selectedFilter} comments yet...`
+                      : "No comments yet. Waiting for live activity..."}
+                  </p>
                 </div>
               ) : (
-                (comments as any[]).map((comment) => (
+                (filteredComments as any[]).map((comment) => (
                   <div
                     key={comment.id}
                     className="p-3 bg-slate-50 rounded-lg border border-slate-200 hover:border-slate-300 transition-colors animate-in fade-in duration-300"

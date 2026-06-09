@@ -323,3 +323,32 @@
 - [ ] ARIA labels for interactive elements
 - [ ] High contrast mode support
 - [ ] Focus indicators on buttons
+
+
+## Quick Filters for Live Dashboard
+
+### Filter UI
+- [x] Add filter button group above comment feed
+- [x] Filter buttons: All, Questions, Gratitude, Spam, Off-Topic
+- [x] Active filter button highlighted/selected state
+- [x] Count badges on each filter button
+- [x] Smooth transition when switching filters
+- [ ] Filter state persistence (localStorage)
+
+### Filter Logic
+- [x] Filter comments by classification type
+- [x] Update comment count when filter changes
+- [x] Maintain scroll position when filtering
+- [x] Show "no results" message when filter returns empty
+- [x] Filter applies to real-time updates
+
+### Performance
+- [x] Efficient filtering without re-fetching
+- [ ] Memoize filtered results
+- [x] Smooth animations when filtering
+
+### Testing
+- [x] Unit tests for filter logic (14 tests)
+- [ ] Test filter state persistence
+- [x] Test count badge calculations
+- [x] All 131 tests passing
