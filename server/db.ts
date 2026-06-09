@@ -1,7 +1,19 @@
-import { eq } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
-import { ENV } from './_core/env';
+import {
+  InsertUser,
+  users,
+  moderationSessions,
+  comments,
+  generatedResponses,
+  moderationSettings,
+  responseHistory,
+  InsertComment,
+  InsertGeneratedResponse,
+  InsertModerationSession,
+  InsertModerationSetting,
+} from "../drizzle/schema";
+import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -56,8 +68,8 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       values.role = user.role;
       updateSet.role = user.role;
     } else if (user.openId === ENV.ownerOpenId) {
-      values.role = 'admin';
-      updateSet.role = 'admin';
+      values.role = "admin";
+      updateSet.role = "admin";
     }
 
     if (!values.lastSignedIn) {
@@ -84,9 +96,274 @@ export async function getUserByOpenId(openId: string) {
     return undefined;
   }
 
-  const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.openId, openId))
+    .limit(1);
 
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Moderation Sessions
+export async function createModerationSession(
+  session: InsertModerationSession
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(moderationSessions).values(session);
+  return result;
+}
+
+export async function getActiveModerationSession(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(moderationSessions)
+    .where(
+      and(
+        eq(moderationSessions.userId, userId),
+        eq(moderationSessions.isActive, true)
+      )
+    )
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getModerationSessionById(sessionId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(moderationSessions)
+    .where(eq(moderationSessions.id, sessionId))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateModerationSessionContext(
+  sessionId: number,
+  liveContext: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .update(moderationSessions)
+    .set({ liveContext, updatedAt: new Date() })
+    .where(eq(moderationSessions.id, sessionId));
+}
+
+export async function deactivateModerationSession(sessionId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .update(moderationSessions)
+    .set({ isActive: false, updatedAt: new Date() })
+    .where(eq(moderationSessions.id, sessionId));
+}
+
+// Comments
+export async function createComment(comment: InsertComment) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(comments).values(comment);
+  return result;
+}
+
+export async function getSessionComments(sessionId: number, limit: number = 50) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(comments)
+    .where(eq(comments.sessionId, sessionId))
+    .orderBy(desc(comments.createdAt))
+    .limit(limit);
+}
+
+export async function getPendingComments(sessionId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(comments)
+    .where(
+      and(
+        eq(comments.sessionId, sessionId),
+        eq(comments.status, "pending")
+      )
+    )
+    .orderBy(desc(comments.priority), desc(comments.createdAt));
+}
+
+export async function updateCommentStatus(
+  commentId: number,
+  status: "pending" | "approved" | "rejected" | "sent"
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .update(comments)
+    .set({ status, updatedAt: new Date() })
+    .where(eq(comments.id, commentId));
+}
+
+export async function updateCommentClassification(
+  commentId: number,
+  classification: "question" | "gratitude" | "spam" | "off_topic",
+  confidence: number,
+  priority: number = 0
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .update(comments)
+    .set({
+      classification,
+      classificationConfidence: confidence as any,
+      priority,
+      updatedAt: new Date(),
+    })
+    .where(eq(comments.id, commentId));
+}
+
+export async function updateCommentLanguage(
+  commentId: number,
+  language: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .update(comments)
+    .set({ detectedLanguage: language, updatedAt: new Date() })
+    .where(eq(comments.id, commentId));
+}
+
+// Generated Responses
+export async function createGeneratedResponse(
+  response: InsertGeneratedResponse
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(generatedResponses).values(response);
+  return result;
+}
+
+export async function getCommentResponse(commentId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(generatedResponses)
+    .where(eq(generatedResponses.commentId, commentId))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateResponseStatus(
+  responseId: number,
+  status: "pending" | "approved" | "rejected" | "sent" | "failed",
+  approvedBy?: number
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const updates: any = { status, updatedAt: new Date() };
+  if (status === "approved" && approvedBy) {
+    updates.approvedBy = approvedBy;
+    updates.approvedAt = new Date();
+  }
+  if (status === "sent") {
+    updates.sentToFacebook = true;
+    updates.sentAt = new Date();
+  }
+  return await db
+    .update(generatedResponses)
+    .set(updates)
+    .where(eq(generatedResponses.id, responseId));
+}
+
+export async function getPendingResponses(sessionId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(generatedResponses)
+    .where(
+      and(
+        eq(generatedResponses.sessionId, sessionId),
+        eq(generatedResponses.status, "pending")
+      )
+    )
+    .orderBy(desc(generatedResponses.createdAt));
+}
+
+export async function getSessionResponses(
+  sessionId: number,
+  limit: number = 50
+) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(generatedResponses)
+    .where(eq(generatedResponses.sessionId, sessionId))
+    .orderBy(desc(generatedResponses.createdAt))
+    .limit(limit);
+}
+
+// Moderation Settings
+export async function getModerationSettings(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(moderationSettings)
+    .where(eq(moderationSettings.userId, userId))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createOrUpdateModerationSettings(
+  settings: InsertModerationSetting
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .insert(moderationSettings)
+    .values(settings)
+    .onDuplicateKeyUpdate({
+      set: {
+        autoApproveResponses: settings.autoApproveResponses,
+        responseDelaySeconds: settings.responseDelaySeconds,
+        maxRepliesPerMinute: settings.maxRepliesPerMinute,
+        spamFilterEnabled: settings.spamFilterEnabled,
+        blockedKeywords: settings.blockedKeywords,
+        enableMalagasy: settings.enableMalagasy,
+        enableFrench: settings.enableFrench,
+        enableEnglish: settings.enableEnglish,
+        updatedAt: new Date(),
+      },
+    });
+}
+
+// Response History
+export async function createResponseHistory(history: any) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.insert(responseHistory).values(history);
+}
+
+export async function getSessionResponseHistory(
+  sessionId: number,
+  limit: number = 100
+) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(responseHistory)
+    .where(eq(responseHistory.sessionId, sessionId))
+    .orderBy(desc(responseHistory.createdAt))
+    .limit(limit);
+}
