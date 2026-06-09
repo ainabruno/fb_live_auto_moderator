@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Loader2, Plus, Settings, History } from "lucide-react";
+import { Loader2, Plus, Settings, History, Sliders } from "lucide-react";
 
 export default function Dashboard() {
   const { user, isAuthenticated } = useAuth();
@@ -74,7 +74,7 @@ export default function Dashboard() {
             <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
             <p className="text-sm text-slate-600">Welcome, {user?.name || "User"}</p>
           </div>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => setLocation("/settings" as any)}>
             <Settings className="w-4 h-4 mr-2" />
             Settings
           </Button>
@@ -106,10 +106,11 @@ export default function Dashboard() {
                 </div>
                 <div className="flex gap-2">
                   <Button
-                    onClick={() => setLocation(`/session/${activeSession.id}` as any)}
-                    variant="default"
+                    onClick={() => setLocation("/settings" as any)}
+                    className="gap-2"
                   >
-                    Go to Session
+                    <Sliders className="w-4 h-4" />
+                    Go to Settings
                   </Button>
                   <Button
                     onClick={() => endSessionMutation.mutate({ sessionId: activeSession.id })}
@@ -269,15 +270,14 @@ export default function Dashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {settingsQuery.isLoading ? (
-                  <div className="flex items-center justify-center py-8">
-                    <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-slate-600">
-                    Settings panel coming soon. Go to a session to configure moderation.
-                  </div>
-                )}
+                <div className="text-center py-8">
+                  <p className="text-slate-600 mb-4">
+                    Access the full settings panel to customize your AI moderation rules.
+                  </p>
+                  <Button onClick={() => setLocation("/settings" as any)}>
+                    Go to Settings
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

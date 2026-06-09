@@ -17,6 +17,7 @@ import {
   AlertCircle,
   ArrowLeft,
   Zap,
+  Settings,
 } from "lucide-react";
 
 export default function Session() {
@@ -163,15 +164,23 @@ export default function Session() {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Dashboard
             </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900">
-                Live Moderation Session
-              </h1>
-              <p className="text-sm text-slate-600">
-                Page: {session.facebookPageId}
-              </p>
-            </div>
+          <div className="flex-1">
+            <h1 className="text-2xl font-bold text-slate-900">
+              Live Moderation Session
+            </h1>
+            <p className="text-sm text-slate-600">
+              Page: {session.facebookPageId}
+            </p>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setLocation("/settings" as any)}
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Settings
+          </Button>
+        </div>
         </div>
       </div>
 
