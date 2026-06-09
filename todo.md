@@ -261,3 +261,65 @@
 - [x] Unit tests for FacebookClient
 - [x] Unit tests for CommentListener (20 tests)
 - [x] All 117 tests passing
+
+
+## Live Dashboard
+
+### Real-Time Statistics
+- [x] Display total comments received (live counter)
+- [x] Display total responses sent (live counter)
+- [x] Display current queue size (pending comments)
+- [x] Display auto-approval rate percentage
+- [ ] Display response time average
+- [ ] Display error rate percentage
+
+### Live Comment Feed
+- [x] Real-time comment stream with newest first
+- [x] Comment cards with user name, message, timestamp
+- [x] Language badge (EN, FR, MG)
+- [x] Classification badge (question, gratitude, spam, off-topic)
+- [x] Priority indicator (color-coded)
+- [x] Spam indicator (red warning)
+- [x] Timestamp relative to now (e.g., "2 min ago")
+- [ ] Expandable comment details
+- [ ] Manual approve/reject buttons per comment
+
+### Live Response Feed
+- [x] Real-time response stream showing sent replies
+- [ ] Original comment + generated response side-by-side
+- [x] Response status indicator (pending, sent, failed)
+- [x] Language of response displayed
+- [ ] Confidence score visualization
+- [x] Timestamp of when response was sent
+- [ ] Ability to view Facebook comment ID
+
+### Dashboard Layout
+- [x] Split view: left side for incoming comments, right side for responses
+- [x] Top stats bar with key metrics
+- [x] Pause/resume listening button
+- [ ] Clear history button
+- [ ] Export data button
+- [x] Settings quick access
+- [x] Session info (page name, live video title, duration)
+
+### Animations & Polish
+- [x] Smooth fade-in for new comments
+- [ ] Highlight animation for new responses
+- [ ] Status change animations
+- [x] Loading skeletons while fetching
+- [x] Empty state message when no comments
+- [ ] Scroll-to-top button for long feeds
+
+### Performance
+- [ ] Virtual scrolling for large comment lists
+- [ ] Lazy load older comments
+- [x] Debounce real-time updates (2 second refetch interval)
+- [ ] Optimize re-renders with React.memo
+- [ ] Cache comment data efficiently
+
+### Accessibility
+- [ ] Keyboard navigation for comments
+- [ ] Screen reader support for status badges
+- [ ] ARIA labels for interactive elements
+- [ ] High contrast mode support
+- [ ] Focus indicators on buttons

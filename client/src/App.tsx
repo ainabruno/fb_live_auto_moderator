@@ -8,13 +8,15 @@ import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Session from "./pages/Session";
 import Settings from "./pages/Settings";
+import LiveDashboard from "./pages/LiveDashboard";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
-      <Route path={"/"} component={Home} />
+      <Route path={"/ "} component={Home} />
       <Route path={"/dashboard"} component={Dashboard} />
+      <Route path={"/live-dashboard"} component={LiveDashboard} />
       <Route path={"/session/:id"} component={Session} />
       <Route path={"/settings"} component={Settings} />
       <Route path={"/404"} component={NotFound} />

@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Loader2, Plus, Settings, History, Sliders } from "lucide-react";
+import { Loader2, Plus, Settings, History, Sliders, BarChart3 } from "lucide-react";
 
 export default function Dashboard() {
   const { user, isAuthenticated } = useAuth();
@@ -105,6 +105,13 @@ export default function Dashboard() {
                   )}
                 </div>
                 <div className="flex gap-2">
+                  <Button
+                    onClick={() => setLocation("/live-dashboard" as any)}
+                    className="gap-2"
+                  >
+                    <BarChart3 className="w-4 h-4" />
+                    View Live Dashboard
+                  </Button>
                   <Button
                     onClick={() => setLocation("/settings" as any)}
                     className="gap-2"
