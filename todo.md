@@ -397,3 +397,34 @@
 - [x] Tests for notification debouncing
 - [x] Tests for notification state management
 - [x] All 145 tests passing
+
+
+## Quick Reply from Notifications
+
+### Toast Action Button
+- [x] Add "Reply" button to high-priority notification toast
+- [x] Show quick reply modal/form on button click
+- [x] Input field for custom response text
+- [x] Send button to post response immediately
+- [x] Cancel button to close form
+- [x] Loading state during sending
+
+### Quick Reply Form
+- [x] Pre-fill with suggested response from AI
+- [x] Allow editing of suggested response
+- [x] Character count indicator
+- [x] Language selector (auto-detect from comment)
+- [ ] Preview of response before sending
+
+### Response Sending
+- [x] Send response via tRPC mutation
+- [x] Track response as sent
+- [x] Show success/error notification
+- [ ] Update comment status to "responded"
+- [ ] Add to response history
+
+### Testing
+- [x] Unit tests for quick reply logic (23 tests)
+- [x] Tests for response sending
+- [x] Tests for form validation
+- [x] All 168 tests passing
