@@ -10,6 +10,7 @@ import Session from "./pages/Session";
 import Settings from "./pages/Settings";
 import LiveDashboard from "./pages/LiveDashboard";
 import AutomationControls from "./pages/AutomationControls";
+import ResponseHistory from "./pages/ResponseHistory";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -21,6 +22,7 @@ function Router() {
       <Route path={"/automation"} component={AutomationControls} />
       <Route path={"/session/:id"} component={Session} />
       <Route path={"/settings"} component={Settings} />
+      <Route path={"/history"} component={ResponseHistory} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

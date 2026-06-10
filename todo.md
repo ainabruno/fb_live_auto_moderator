@@ -54,12 +54,12 @@
 - [ ] Undo/rollback for sent responses (if applicable)
 
 ### 8. Response History Log
-- [ ] Display all sent replies
-- [ ] Show original comment + generated response + status
-- [ ] Timestamp for each response
-- [ ] Filter by status (sent, rejected, pending)
-- [ ] Search/filter responses
-- [ ] Export response history
+- [x] Display all sent replies
+- [x] Show original comment + generated response + status
+- [x] Timestamp for each response
+- [x] Filter by status (sent, rejected, pending)
+- [x] Search/filter responses
+- [x] Export response history
 
 ### 9. Multilingual Support
 - [x] Auto-detect comment language (Malagasy/French/English)
@@ -529,3 +529,26 @@
 - [x] End-to-end automation tests
 - [x] Error handling tests
 - [x] All 207 tests passing
+
+
+## Response History Improvements
+
+### Session History
+- [ ] Display responses from inactive/past sessions (not just active)
+- [ ] Session selector dropdown to choose which session to view
+- [ ] Load response history for selected session
+- [ ] Show session metadata (start time, duration, page name)
+
+### Response Details
+- [ ] Display original comment alongside generated response
+- [ ] Show commenter name with each response
+- [ ] Display comment classification and priority
+- [ ] Show confidence scores for responses
+
+### Export Enhancement
+- [ ] Include original comment text in CSV export
+- [ ] Include commenter name in CSV export
+- [ ] Support exporting past-session history
+- [ ] Add date range filter for exports
+- [ ] Export as JSON option
+
