@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import Session from "./pages/Session";
 import Settings from "./pages/Settings";
 import LiveDashboard from "./pages/LiveDashboard";
+import AutomationControls from "./pages/AutomationControls";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -17,6 +18,7 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/dashboard"} component={Dashboard} />
       <Route path={"/live-dashboard"} component={LiveDashboard} />
+      <Route path={"/automation"} component={AutomationControls} />
       <Route path={"/session/:id"} component={Session} />
       <Route path={"/settings"} component={Settings} />
       <Route path={"/404"} component={NotFound} />

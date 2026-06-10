@@ -506,6 +506,11 @@
 - [x] Show pending comments
 - [x] Show queued responses
 - [x] Show posted responses
+- [x] AutomationControls page with real-time state
+- [x] Start/stop/pause/resume buttons
+- [x] Metrics cards (comments, responses, sent)
+- [x] Error log display
+- [x] Activity timestamp tracking
 
 ### Metrics Dashboard
 - [x] Comments processed count
@@ -513,11 +518,14 @@
 - [x] Responses posted count
 - [x] Average response time
 - [x] Error rate
+- [x] Last activity time
+- [x] Approval rate calculation
 
 ### Testing
 - [x] Unit tests for audio transcription
 - [x] Unit tests for automation orchestrator (21 tests)
+- [x] Unit tests for automation controls (18 tests)
 - [x] Integration tests for Facebook API
 - [x] End-to-end automation tests
 - [x] Error handling tests
-- [x] All 189 tests passing
+- [x] All 207 tests passing
