@@ -352,3 +352,48 @@
 - [ ] Test filter state persistence
 - [x] Test count badge calculations
 - [x] All 131 tests passing
+
+
+## Priority Notification System
+
+### Notification Triggers
+- [x] Detect high-priority questions (priority >= 80)
+- [x] Detect medium-priority questions (priority >= 50)
+- [x] Detect spam with high confidence
+- [ ] Detect unanswered questions in queue
+- [x] Notification debouncing (avoid spam)
+
+### Visual Notifications
+- [x] Toast notification component
+- [x] Badge with question count on dashboard
+- [ ] Pulsing animation for high-priority items
+- [x] Color-coded notification levels (red for urgent, orange for high)
+- [x] Notification dismiss button
+- [x] Auto-dismiss after 5 seconds
+
+### Audio Notifications
+- [x] Optional sound alert for high-priority questions
+- [ ] Different sounds for different priority levels
+- [ ] Mute/unmute toggle in settings
+- [ ] Volume control
+
+### Dashboard Indicators
+- [ ] Floating action button (FAB) with notification badge
+- [x] Notification bell icon with counter
+- [x] Notification center/history panel
+- [x] Mark notification as read
+- [x] Clear all notifications
+
+### User Preferences
+- [ ] Enable/disable notifications in settings
+- [x] Notification sound toggle
+- [ ] Notification frequency settings
+- [ ] Priority threshold customization
+- [ ] Notification persistence (localStorage)
+
+### Testing
+- [x] Unit tests for notification logic (14 tests)
+- [x] Tests for priority detection
+- [x] Tests for notification debouncing
+- [x] Tests for notification state management
+- [x] All 145 tests passing

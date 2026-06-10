@@ -16,7 +16,11 @@ import {
   RotateCcw,
   Settings,
   TrendingUp,
+  Bell,
 } from "lucide-react";
+import { useNotifications } from "@/hooks/useNotifications";
+import { NotificationToast } from "@/components/NotificationToast";
+import { NotificationCenter } from "@/components/NotificationCenter";
 
 interface CommentData {
   id: number;
@@ -64,8 +68,41 @@ export default function LiveDashboard() {
 
   const [isPaused, setIsPaused] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
+  const [showNotificationCenter, setShowNotificationCenter] = useState(false);
   const commentsFeedRef = useRef<HTMLDivElement>(null);
   const responsesFeedRef = useRef<HTMLDivElement>(null);
+  const previousHighPriorityCountRef = useRef(0);
+  const {
+    notifications,
+    addNotification,
+    markAsRead,
+    clearAll,
+    unreadCount,
+    highPriorityCount,
+  } = useNotifications();
+
+  // Detect new high-priority questions and show notifications
+  useEffect(() => {
+    const highPriorityQuestions = (comments as any[]).filter(
+      (c) => c.classification === "question" && c.priority >= 80
+    );
+    const currentCount = highPriorityQuestions.length;
+
+    if (currentCount > previousHighPriorityCountRef.current) {
+      const latestQuestion = highPriorityQuestions[0];
+
+      if (latestQuestion) {
+        addNotification({
+          type: "high_priority",
+          title: "🔴 High-Priority Question!",
+          message: `${latestQuestion.userName}: "${latestQuestion.message.substring(0, 50)}..."`,
+          priority: latestQuestion.priority,
+        });
+      }
+    }
+
+    previousHighPriorityCountRef.current = currentCount;
+  }, [comments, addNotification]);
 
   // Auto-scroll to newest items
   useEffect(() => {
@@ -226,6 +263,19 @@ export default function LiveDashboard() {
                 className="gap-2"
               >
                 <Settings className="w-4 h-4" /> Settings
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowNotificationCenter(!showNotificationCenter)}
+                className="gap-2 relative"
+              >
+                <Bell className="w-4 h-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 bg-red-600 text-white text-xs font-bold rounded-full transform translate-x-1 -translate-y-1">
+                    {unreadCount}
+                  </span>
+                )}
               </Button>
             </div>
           </div>
@@ -622,6 +672,32 @@ export default function LiveDashboard() {
             </div>
           </Card>
         </div>
+
+        {/* Notification Toasts */}
+        <div className="fixed bottom-4 right-4 space-y-3 z-40 pointer-events-none">
+          {notifications.map((notification) => (
+            <div key={notification.id} className="pointer-events-auto">
+              <NotificationToast
+                notification={notification}
+                onDismiss={(id) => {
+                  // Notification will auto-dismiss
+                }}
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* Notification Center Modal */}
+        {showNotificationCenter && (
+          <NotificationCenter
+            notifications={notifications}
+            unreadCount={unreadCount}
+            highPriorityCount={highPriorityCount}
+            onMarkAsRead={markAsRead}
+            onClearAll={clearAll}
+            onClose={() => setShowNotificationCenter(false)}
+          />
+        )}
       </div>
     </div>
   );
