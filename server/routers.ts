@@ -263,6 +263,27 @@ export const appRouter = router({
         return await db.getSessionResponses(input.sessionId, input.limit);
       }),
 
+    getUserSessions: protectedProcedure
+      .input(
+        z.object({
+          limit: z.number().default(50),
+        })
+      )
+      .query(async ({ ctx, input }) => {
+        return await db.getUserModerationSessions(ctx.user!.id, input.limit);
+      }),
+
+    getSessionResponsesWithComments: protectedProcedure
+      .input(
+        z.object({
+          sessionId: z.number(),
+          limit: z.number().default(50),
+        })
+      )
+      .query(async ({ input }) => {
+        return await db.getSessionResponsesWithComments(input.sessionId, input.limit);
+      }),
+
     // Moderation Settings
     getSettings: protectedProcedure.query(async ({ ctx }) => {
       return await db.getModerationSettings(ctx.user!.id);

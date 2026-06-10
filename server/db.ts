@@ -1,4 +1,4 @@
-import { eq, desc, and } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser,
@@ -194,7 +194,7 @@ export async function getPendingComments(sessionId: number) {
         eq(comments.status, "pending")
       )
     )
-    .orderBy(desc(comments.priority), desc(comments.createdAt));
+    .orderBy(desc(comments.createdAt));
 }
 
 export async function updateCommentStatus(
@@ -212,8 +212,7 @@ export async function updateCommentStatus(
 export async function updateCommentClassification(
   commentId: number,
   classification: "question" | "gratitude" | "spam" | "off_topic",
-  confidence: number,
-  priority: number = 0
+  confidence: number
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -222,7 +221,6 @@ export async function updateCommentClassification(
     .set({
       classification,
       classificationConfidence: confidence as any,
-      priority,
       updatedAt: new Date(),
     })
     .where(eq(comments.id, commentId));
@@ -290,18 +288,14 @@ export async function updateResponseStatus(
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const updates: any = { status, updatedAt: new Date() };
-  if (status === "approved" && approvedBy) {
-    updates.approvedBy = approvedBy;
-    updates.approvedAt = new Date();
-  }
-  if (status === "sent") {
-    updates.sentToFacebook = true;
-    updates.sentAt = new Date();
+  const updateData: any = { status, updatedAt: new Date() };
+  if (approvedBy) {
+    updateData.approvedBy = approvedBy;
+    updateData.approvedAt = new Date();
   }
   return await db
     .update(generatedResponses)
-    .set(updates)
+    .set(updateData)
     .where(eq(generatedResponses.id, responseId));
 }
 
@@ -355,21 +349,10 @@ export async function createOrUpdateModerationSettings(
     .insert(moderationSettings)
     .values(settings)
     .onDuplicateKeyUpdate({
-      set: {
-        autoApproveResponses: settings.autoApproveResponses,
-        responseDelaySeconds: settings.responseDelaySeconds,
-        maxRepliesPerMinute: settings.maxRepliesPerMinute,
-        spamFilterEnabled: settings.spamFilterEnabled,
-        blockedKeywords: settings.blockedKeywords,
-        enableMalagasy: settings.enableMalagasy,
-        enableFrench: settings.enableFrench,
-        enableEnglish: settings.enableEnglish,
-        updatedAt: new Date(),
-      },
+      set: settings,
     });
 }
 
-// Response History
 export async function createResponseHistory(history: any) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -388,4 +371,52 @@ export async function getSessionResponseHistory(
     .where(eq(responseHistory.sessionId, sessionId))
     .orderBy(desc(responseHistory.createdAt))
     .limit(limit);
+}
+
+export async function getUserModerationSessions(
+  userId: number,
+  limit: number = 50
+) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(moderationSessions)
+    .where(eq(moderationSessions.userId, userId))
+    .orderBy(desc(moderationSessions.createdAt))
+    .limit(limit);
+}
+
+export async function getSessionResponsesWithComments(
+  sessionId: number,
+  limit: number = 50
+) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Get all responses for the session
+  const responses = await db
+    .select()
+    .from(generatedResponses)
+    .where(eq(generatedResponses.sessionId, sessionId))
+    .orderBy(desc(generatedResponses.createdAt))
+    .limit(limit);
+
+  // For each response, get the corresponding comment
+  const responsesWithComments = await Promise.all(
+    responses.map(async (response: any) => {
+      const comment = await db
+        .select()
+        .from(comments)
+        .where(eq(comments.id, response.commentId))
+        .limit(1);
+
+      return {
+        ...response,
+        comment: comment.length > 0 ? comment[0] : null,
+      };
+    })
+  );
+
+  return responsesWithComments;
 }

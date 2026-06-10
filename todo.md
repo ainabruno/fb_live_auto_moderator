@@ -534,14 +534,14 @@
 ## Response History Improvements
 
 ### Session History
-- [ ] Display responses from inactive/past sessions (not just active)
-- [ ] Session selector dropdown to choose which session to view
-- [ ] Load response history for selected session
-- [ ] Show session metadata (start time, duration, page name)
+- [x] Display responses from inactive/past sessions (not just active)
+- [x] Session selector dropdown to choose which session to view
+- [x] Load response history for selected session
+- [x] Show session metadata (start time, duration, page name)
 
 ### Response Details
-- [ ] Display original comment alongside generated response
-- [ ] Show commenter name with each response
+- [x] Display original comment alongside generated response
+- [x] Show commenter name with each response
 - [ ] Display comment classification and priority
 - [ ] Show confidence scores for responses
 

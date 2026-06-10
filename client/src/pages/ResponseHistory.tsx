@@ -20,17 +20,17 @@ export default function ResponseHistory() {
   // Fetch active session
   const { data: activeSession } = trpc.moderation.getActiveSession.useQuery();
 
-  // Fetch responses for active session
-  const { data: responses, isLoading: responsesLoading } = trpc.moderation.getSessionResponses.useQuery(
+  // Fetch responses with comments for active session
+  const { data: responsesWithComments, isLoading: responsesLoading } = trpc.moderation.getSessionResponsesWithComments.useQuery(
     { sessionId: activeSession?.id || 0, limit: 500 },
     { enabled: activeSession !== null }
   );
 
   // Filter and sort responses
   const filteredResponses = useMemo(() => {
-    if (!responses) return [];
+    if (!responsesWithComments) return [];
 
-    let filtered = responses as any[];
+    let filtered = responsesWithComments as any[];
 
     // Apply status filter
     if (statusFilter !== 'all') {
@@ -41,7 +41,9 @@ export default function ResponseHistory() {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter((r: any) =>
-        r.responseText?.toLowerCase().includes(query)
+        r.responseText?.toLowerCase().includes(query) ||
+        r.comment?.message?.toLowerCase().includes(query) ||
+        r.comment?.userName?.toLowerCase().includes(query)
       );
     }
 
@@ -60,7 +62,7 @@ export default function ResponseHistory() {
     });
 
     return sorted;
-  }, [responses, statusFilter, searchQuery, sortBy]);
+  }, [responsesWithComments, statusFilter, searchQuery, sortBy]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -79,19 +81,38 @@ export default function ResponseHistory() {
     }
   };
 
+  const getClassificationColor = (classification: string) => {
+    switch (classification) {
+      case 'question':
+        return 'bg-blue-100 text-blue-800';
+      case 'gratitude':
+        return 'bg-green-100 text-green-800';
+      case 'spam':
+        return 'bg-red-100 text-red-800';
+      case 'off_topic':
+        return 'bg-orange-100 text-orange-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   const handleExport = () => {
     if (!filteredResponses.length) return;
 
     const csv = [
-      ['Timestamp', 'Response', 'Status', 'Language', 'Grounded'].join(','),
+      ['Timestamp', 'Commenter', 'Original Comment', 'Classification', 'Response', 'Status', 'Language', 'Grounded'].join(','),
       ...filteredResponses.map((r: any) =>
         [
           new Date(r.createdAt).toISOString(),
+          `"${r.comment?.userName?.replace(/"/g, '""') || ''}"`,
+          `"${r.comment?.message?.replace(/"/g, '""') || ''}"`,
+          r.comment?.classification || 'Unknown',
           `"${r.responseText?.replace(/"/g, '""') || ''}"`,
           r.status,
           r.responseLanguage || 'Unknown',
           r.isGroundedInContext ? 'Yes' : 'No'
         ].join(',')
+        .split('\"\"').join(',')
       )
     ].join('\n');
 
@@ -121,7 +142,7 @@ export default function ResponseHistory() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-slate-900 mb-2">Response History</h1>
-          <p className="text-slate-600">View and manage all generated responses</p>
+          <p className="text-slate-600">View and manage all generated responses with original comments</p>
         </div>
 
         {/* Session Info */}
@@ -150,7 +171,7 @@ export default function ResponseHistory() {
             <div className="relative">
               <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
               <Input
-                placeholder="Search responses..."
+                placeholder="Search comments or responses..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -199,7 +220,7 @@ export default function ResponseHistory() {
           ) : (
             <>
               <div className="text-sm text-slate-600 mb-4">
-                Showing {filteredResponses.length} of {responses?.length || 0} responses
+                Showing {filteredResponses.length} of {responsesWithComments?.length || 0} responses
               </div>
               {filteredResponses.map((response: any) => (
                 <Card key={response.id} className="p-6 hover:shadow-lg transition-shadow">
